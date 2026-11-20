@@ -8,7 +8,7 @@ steps {
   ["shellcheck"] = (Builtins.shellcheck) {
     depends = "shfmt"
   }
-  ["actionlint"] = Builtins.actionlint
+  ["jactionlint"] = Builtins.jactionlint
   ["zizmor"] = Builtins.zizmor
   ["toolconfig"] {
     glob = List(".toolconfig.toml", ".editorconfig", ".toolconfig.lock")
