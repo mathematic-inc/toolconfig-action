@@ -1,0 +1,70 @@
+name: Verify ToolConfig action
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: toolconfig-action-ci-${{ github.ref }}
+  cancel-in-progress: true
+defaults:
+  run:
+    shell: bash
+jobs:
+  verify:
+    name: Verify (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-15, windows-2025]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: jdx/mise-action@90f833d396d0cc3674b631d2d225e306476c303a # v5.2.10
+        with:
+          install_args: toolconfig
+      - name: Check the repository root
+        uses: $/
+      - name: Check a project in a sub-directory
+        uses: $/
+        with:
+          working-directory: tests/current
+      - name: Check a project with a stale tracked file
+        id: stale
+        continue-on-error: true
+        uses: $/
+        with:
+          working-directory: tests/stale
+      - name: Check that the stale project failed before generation
+        env:
+          STALE_OUTCOME: ${{ steps.stale.outcome }}
+        run: |
+          test "$STALE_OUTCOME" = failure
+          git diff --exit-code -- tests/stale
+      - name: Give only some GitHub App inputs
+        id: some-app-inputs
+        continue-on-error: true
+        uses: $/
+        with:
+          client-id: Iv23test
+          repositories: mathematic-inc/toolconfig-config
+      - name: Check that some GitHub App inputs failed
+        env:
+          SOME_APP_INPUTS_OUTCOME: ${{ steps.some-app-inputs.outcome }}
+        run: test "$SOME_APP_INPUTS_OUTCOME" = failure
+  check:
+    name: Check
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: jdx/mise-action@90f833d396d0cc3674b631d2d225e306476c303a # v5.2.10
+      - name: Run every check
+        run: mise run check

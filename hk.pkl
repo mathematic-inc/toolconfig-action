@@ -1,0 +1,19 @@
+amends "package://github.com/jdx/hk/releases/download/v2.13.0/hk@2.13.0#/Config.pkl"
+import "package://github.com/jdx/hk/releases/download/v2.13.0/hk@2.13.0#/Builtins.pkl"
+
+steps {
+  ["newlines"] = Builtins.newlines
+  ["trailing_whitespace"] = Builtins.trailing_whitespace
+  ["shfmt"] = Builtins.shfmt
+  ["shellcheck"] = (Builtins.shellcheck) {
+    depends = "shfmt"
+  }
+  ["jactionlint"] = (Builtins.jactionlint) {
+    glob = List(".github/workflows/*.yml", "action.yml")
+  }
+  ["zizmor"] = Builtins.zizmor
+  ["toolconfig"] {
+    glob = List(".toolconfig.toml", ".editorconfig", ".toolconfig.lock")
+    check = "toolconfig check --strict"
+  }
+}

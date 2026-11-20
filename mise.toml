@@ -1,0 +1,14 @@
+[tool_alias]
+toolconfig = "github:mathematic-inc/toolconfig"
+
+[tools]
+jactionlint = "2.6.0"
+hk = "2.13.0"
+shellcheck = "0.11.0"
+shfmt = "3.14.1"
+toolconfig = "2026.11.4"
+zizmor = "1.32.0"
+
+[tasks.check]
+description = "Run every check"
+run = ["hk check --all", "bash tests/contracts.sh"]
