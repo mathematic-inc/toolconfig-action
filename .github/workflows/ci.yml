@@ -4,8 +4,6 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
-permissions:
-  contents: read
 concurrency:
   group: toolconfig-action-ci-${{ github.ref }}
   cancel-in-progress: true
@@ -17,6 +15,8 @@ jobs:
     name: Verify (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:
@@ -61,10 +61,18 @@ jobs:
     name: Check
     runs-on: ubuntu-24.04
     timeout-minutes: 10
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          fetch-depth: 0
           persist-credentials: false
       - uses: jdx/mise-action@90f833d396d0cc3674b631d2d225e306476c303a # v5.2.10
-      - name: Run every check
-        run: mise run check
+      - name: Check and generate the ToolConfig files
+        uses: $/
+      # The action ran ToolConfig.
+      - name: Run hk
+        run: hk check --all --slow --skip-step toolconfig
+      - name: Run the contract tests
+        run: bash tests/contracts.sh
