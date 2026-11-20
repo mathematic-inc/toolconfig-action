@@ -8,7 +8,9 @@ steps {
   ["shellcheck"] = (Builtins.shellcheck) {
     depends = "shfmt"
   }
-  ["jactionlint"] = Builtins.jactionlint
+  ["jactionlint"] = (Builtins.jactionlint) {
+    glob = List(".github/workflows/*.yml", "action.yml")
+  }
   ["zizmor"] = Builtins.zizmor
   ["toolconfig"] {
     glob = List(".toolconfig.toml", ".editorconfig", ".toolconfig.lock")
