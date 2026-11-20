@@ -1,0 +1,6 @@
+# Written by ToolConfig. Commit this file and do not edit it.
+
+version = 1
+
+[outputs]
+".editorconfig" = { hash = "7f9e8b1da4392f4d7357a2ce7fbc80c756f62c077f6d23a548d3858aaae3633b" }
