@@ -95,7 +95,11 @@ The scoped Git token is the only exception.
 mise run check
 ```
 
-The `check` task runs `hk check --all` and `tests/contracts.sh`.
+The `check` task runs `hk check --all --slow` and `tests/contracts.sh`.
+The `fix` task runs `hk fix --all`.
+The `generate` task writes the tool settings, which Git ignores.
+They come from the ToolConfig policy in `mathematic-inc/toolconfig-config`.
+
 The CI also runs the action on the projects in `tests/` on Linux, macOS and Windows.
 
 ## License

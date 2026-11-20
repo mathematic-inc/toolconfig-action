@@ -2,13 +2,33 @@
 toolconfig = "github:mathematic-inc/toolconfig"
 
 [tools]
-jactionlint = "2.6.0"
+ghalint = "1.6.0"
+gitleaks = "8.30.1"
+harper-cli = "3.3.0"
 hk = "2.13.0"
+jactionlint = "2.6.0"
+lychee = "0.24.2"
+pinact = "5.0.2"
+rumdl = "0.3.5"
 shellcheck = "0.11.0"
+shellharden = "4.3.2"
 shfmt = "3.14.1"
-toolconfig = "2026.11.4"
+tombi = "1.11.3"
+toolconfig = "2026.11.6"
+typos = "1.52.2"
 zizmor = "1.32.0"
+"aqua:apple/pkl" = "0.33.1"
+"aqua:owenlamont/ryl" = "0.30.0"
+"github:mongodb/kingfisher" = "2.19.1"
+
+[tasks.generate]
+description = "Write the tool settings"
+run = "toolconfig generate --strict"
+
+[tasks.fix]
+description = "Fix what the tools can fix"
+run = "hk fix --all"
 
 [tasks.check]
 description = "Run every check"
-run = ["hk check --all", "bash tests/contracts.sh"]
+run = ["hk check --all --slow", "bash tests/contracts.sh"]
