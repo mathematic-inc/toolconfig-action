@@ -1,18 +1,19 @@
-name: Verify ToolConfig action
+name: CI
 on:
   push:
     branches: [main]
   pull_request:
   workflow_dispatch:
+permissions: {}
 concurrency:
-  group: toolconfig-action-ci-${{ github.ref }}
-  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 defaults:
   run:
     shell: bash
 jobs:
-  verify:
-    name: Verify (${{ matrix.os }})
+  verify-action:
+    name: Verify action (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     timeout-minutes: 10
     permissions:
@@ -22,25 +23,27 @@ jobs:
       matrix:
         os: [ubuntu-24.04, macos-15, windows-2025]
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: jdx/mise-action@90f833d396d0cc3674b631d2d225e306476c303a # v5.2.10
+      - name: Install tools
+        uses: jdx/mise-action@90f833d396d0cc3674b631d2d225e306476c303a # v5.2.10
         with:
           install_args: toolconfig
-      - name: Check the repository root
+      - name: Check repository root
         uses: $/
-      - name: Check a project in a sub-directory
+      - name: Check project in sub-directory
         uses: $/
         with:
           working-directory: tests/current
-      - name: Check a project with a stale tracked file
+      - name: Check project with stale tracked file
         id: stale
         continue-on-error: true
         uses: $/
         with:
           working-directory: tests/stale
-      - name: Check that the stale project failed before generation
+      - name: Verify stale project failed before generation
         env:
           STALE_OUTCOME: ${{ steps.stale.outcome }}
         run: |
@@ -53,7 +56,7 @@ jobs:
         with:
           client-id: Iv23test
           repositories: mathematic-inc/toolconfig-config
-      - name: Check that some GitHub App inputs failed
+      - name: Verify some GitHub App inputs failed
         env:
           SOME_APP_INPUTS_OUTCOME: ${{ steps.some-app-inputs.outcome }}
         run: test "$SOME_APP_INPUTS_OUTCOME" = failure
@@ -64,14 +67,35 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: jdx/mise-action@90f833d396d0cc3674b631d2d225e306476c303a # v5.2.10
-      - name: Check and generate the ToolConfig files
+      - name: Install tools
+        uses: jdx/mise-action@90f833d396d0cc3674b631d2d225e306476c303a # v5.2.10
+      - name: Check and generate ToolConfig files
         uses: $/
-      - name: Run hk
+      - name: Run checks
         run: hk check --all --slow --skip-step toolconfig
-      - name: Run the contract tests
+      - name: Run contract tests
         run: bash tests/contracts.sh
+  required:
+    name: required
+    if: ${{ always() }}
+    needs:
+      - verify-action
+      - check
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions: {}
+    steps:
+      - name: Check every other job passed
+        env:
+          NEEDS: ${{ toJSON(needs) }}
+        run: |
+          jq -r 'to_entries[] | "\(.key): \(.value.result)"' <<< "$NEEDS"
+          if ! jq -e 'all(.[]; .result == "success" or .result == "skipped")' <<< "$NEEDS" > /dev/null; then
+            echo "::error::A job failed or was cancelled."
+            exit 1
+          fi
