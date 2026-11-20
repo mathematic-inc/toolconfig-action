@@ -25,13 +25,13 @@ steps:
     with:
       persist-credentials: false
   - uses: jdx/mise-action@90f833d396d0cc3674b631d2d225e306476c303a # v5.2.10
-  - uses: mathematic-inc/toolconfig-action@v2026.11.0
+  - uses: mathematic-inc/toolconfig-action@1baf7b021e8bf6f0e20737753c13af0fc93c8570 # v2026.11.0
 ```
 
 For shared configuration in private repositories, give a GitHub App that can read them:
 
 ```yaml
-  - uses: mathematic-inc/toolconfig-action@v2026.11.0
+  - uses: mathematic-inc/toolconfig-action@1baf7b021e8bf6f0e20737753c13af0fc93c8570 # v2026.11.0
     with:
       client-id: ${{ vars.TOOLCONFIG_APP_CLIENT_ID }}
       private-key: ${{ secrets.TOOLCONFIG_APP_PRIVATE_KEY }}
