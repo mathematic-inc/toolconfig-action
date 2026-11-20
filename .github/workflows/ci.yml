@@ -71,7 +71,6 @@ jobs:
       - uses: jdx/mise-action@90f833d396d0cc3674b631d2d225e306476c303a # v5.2.10
       - name: Check and generate the ToolConfig files
         uses: $/
-      # The action ran ToolConfig.
       - name: Run hk
         run: hk check --all --slow --skip-step toolconfig
       - name: Run the contract tests

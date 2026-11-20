@@ -11,7 +11,6 @@ fail() {
   exit 1
 }
 
-# Runs app-inputs.sh with the given variables, and keeps its exit code, messages and outputs.
 read_app_inputs() {
   : >"$GITHUB_OUTPUT"
   status=0
@@ -44,8 +43,6 @@ read_app_inputs "${app[@]}" TOOLCONFIG_REPOSITORIES=$'acme/policy\nother/presets
 [[ $status == 1 && $output == *'more than one owner: acme and other.'* ]] || fail 'Two owners did not fail.'
 printf 'PASS invalid GitHub App inputs\n'
 
-# A ToolConfig that fails when it can read a credential, or cannot read what the scoped Git
-# credential helper needs.
 mkdir "$work/bin" "$work/project"
 cat >"$work/bin/toolconfig" <<'TOOLCONFIG'
 #!/usr/bin/env bash
